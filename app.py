@@ -173,7 +173,7 @@ with st.sidebar:
     api_key_input = st.text_input(
         "Google Gemini API Key",
         type="password",
-        # value=initial_api_key_for_input, 
+        value=initial_api_key_for_input, 
         placeholder="Enter your API key here", 
         help="Enter your Google Gemini API key. If left blank, the key from environment variables (GEMINI_API_KEY) or Streamlit secrets will be used (if set)."
     )
