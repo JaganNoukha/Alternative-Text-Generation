@@ -150,7 +150,7 @@ with st.sidebar:
     st.header("Configuration")
     
     # Retrieve API key from environment variables or Streamlit secrets first
-    default_api_key_from_env_or_secrets = os.getenv("GEMINI_API_KEY", st.secrets.get("gemini_api_key", ""))
+    default_api_key_from_env_or_secrets = os.getenv("GEMINI_API_KEY", st.secrets.get("gemini_api_key", "AIzaSyDhgopVip3JtaG3ytNJGRlqi1dmxn1xbvQ"))
     
     # Text input for API key, pre-filled if available from environment/secrets
     api_key_input = st.text_input(
