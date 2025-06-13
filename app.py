@@ -1,16 +1,14 @@
 import streamlit as st
-import fitz
+import fitz  # PyMuPDF
 from PIL import Image
 import io
 import os
 import base64
-import requests
 import time
 import pandas as pd
 import openai
 from dotenv import load_dotenv
 load_dotenv()
-
 
 # --- API Key Handling ---
 def get_openai_api_key():
@@ -28,9 +26,10 @@ for key in [
 
 # --- Default Prompt ---
 DEFAULT_PROMPT = (
-    "Analyze this image in detail and provide me a story format. "
-    "Describe what is in the image, what it conveys, and its overall significance. "
-    "Pay close attention to any text visible within the image itself. Dont't mention any color."
+    """
+    Analyze the image thoroughly and describe it in a story format. Include details about objects, subjects, actions, and any visible text. Interpret what the image communicates and its significance. Avoid any mention of colors.
+    Also, provide a sharp, concise summary under 300 characters that captures the core message of the image.
+    """
 )
 
 # --- Extract Images from PDF ---
@@ -100,9 +99,22 @@ def get_image_description_from_openai(image_bytes, prompt_text, api_key, identif
             max_tokens=400
         )
 
-        return response.choices[0].message.content.strip()
+        full_content = response.choices[0].message.content.strip()
+
+        # Extract summary if available
+        summary_marker = "Summary:"
+        if summary_marker in full_content:
+            parts = full_content.split(summary_marker, 1)
+            long_text = parts[0].strip()
+            summary_text = f"\n{parts[1].strip()}"
+        else:
+            long_text = full_content
+            summary_text = (full_content[:300] + "...") if len(full_content) > 300 else full_content
+
+        return long_text, summary_text
+
     except Exception as e:
-        return f"OpenAI error for {identifier}: {e}"
+        return f"OpenAI error for {identifier}: {e}", ""
 
 # --- Streamlit UI Setup ---
 st.set_page_config(page_title="PDF Image Analyzer with OpenAI GPT-4o", page_icon="📄", layout="wide")
@@ -160,10 +172,9 @@ if uploaded_file and (uploaded_file.name != st.session_state.uploaded_pdf_name o
             for i, item in enumerate(st.session_state.extracted_images):
                 identifier = f"Page {item['page_number']} Image {item['image_index']}"
 
-                description_long = get_image_description_from_openai(
+                description_long, description_short = get_image_description_from_openai(
                     item['image_bytes'], current_analysis_prompt, current_api_key, identifier
                 )
-                description_short = (description_long[:300] + "...") if len(description_long) > 300 else description_long
 
                 st.session_state.analysis_results.append({
                     'Page Number': item['page_number'],
