@@ -30,7 +30,7 @@ for key in [
 DEFAULT_PROMPT = (
     "Analyze this image in detail and provide me a story format. "
     "Describe what is in the image, what it conveys, and its overall significance. "
-    "Pay close attention to any text visible within the image itself."
+    "Pay close attention to any text visible within the image itself. Dont't mention any color."
 )
 
 # --- Extract Images from PDF ---
